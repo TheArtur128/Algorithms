@@ -1,5 +1,5 @@
 def qsort(numbers: list[int]) -> list:
-    '''O(n). Analogs: numbers.copy().sort()'''
+    '''O(n). Analogs: numbers.sort()'''
 
     if len(numbers) > 2:
         reliance = numbers[len(numbers)//2 - 1]
@@ -22,3 +22,20 @@ def qsort(numbers: list[int]) -> list:
                 numbers.reverse()
 
         return numbers
+
+
+def bubble_sort(numbers: list) -> None:
+    """O(n^2). Analogs: numbers.sort()"""
+
+    is_sorted = False
+
+    while not is_sorted:
+        is_sorted = True
+
+        for i in range(len(numbers) - 1):
+            if numbers[i] > numbers[i + 1]:
+                is_sorted = False
+
+                difference = numbers[i] - numbers[i + 1]
+                numbers[i] -= difference
+                numbers[i + 1] += difference
