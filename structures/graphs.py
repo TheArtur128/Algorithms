@@ -1,4 +1,5 @@
 from typing import Iterable, Callable
+from dataclasses import dataclass
 
 
 class _ConditionalErrorCauser:
@@ -43,3 +44,35 @@ class GraphNode:
         self.__not_graph_error_causer(graph_node)
         self.__next_nodes.remove(graph_node)
 
+
+@dataclass(frozen=True)
+class GraphNodePath:
+    starting_node: GraphNode
+    keys_to_final_node: Iterable
+
+    def __post_init__(self) -> None:
+        active_node = self.starting_node
+
+        for intermediate_key in self.keys_to_final_node:
+            if not any(map(lambda node: node.data == intermediate_key, active_node.nodes)):
+                raise AttributeError(f"{active_node} has no key {intermediate_key}")
+
+            active_node = active_node[intermediate_key]
+
+
+    def __repr__(self) -> str:
+        return f"{self.starting_node.data} -> {' -> '.join(map(lambda key: str(key), self.keys_to_final_node))}"
+
+    @property
+    def nodes(self):
+        active_node = self.starting_node
+
+        yield active_node
+
+        for intermediate_key in self.keys_to_final_node:
+            active_node = active_node[intermediate_key]
+            yield active_node
+
+    @property
+    def final_node(self) -> GraphNode:
+        return tuple(self.nodes)[-1]
