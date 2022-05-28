@@ -1,5 +1,8 @@
-class ConditionalErrorCauser:
-    def __init__(self, condition, error: Exception):
+from typing import Iterable, Callable
+
+
+class _ConditionalErrorCauser:
+    def __init__(self, condition: Callable, error: Exception):
         self.condition = condition
         self.error = error
 
@@ -9,12 +12,12 @@ class ConditionalErrorCauser:
 
 
 class GraphNode:
-    __not_graph_error_causer = ConditionalErrorCauser(
+    __not_graph_error_causer = _ConditionalErrorCauser(
         lambda graph_node: not isinstance(graph_node, GraphNode),
         AttributeError("It is not a graph node")
     )
 
-    def __init__(self, data: any, next_nodes: tuple | list | set = tuple()) -> None:
+    def __init__(self, data: any, next_nodes: Iterable = tuple()) -> None:
         self.data = data
         self.__next_nodes = set(next_nodes)
 
@@ -25,6 +28,8 @@ class GraphNode:
         for node in self.__next_nodes:
             if node.data == data_of_next_node:
                 return node
+
+        raise KeyError(data_of_next_node)
 
     @property
     def nodes(self) -> set:
@@ -38,26 +43,3 @@ class GraphNode:
         self.__not_graph_error_causer(graph_node)
         self.__next_nodes.remove(graph_node)
 
-
-class Queue:
-    def __init__(self, data: tuple | list | set = tuple()):
-        self.__objects = list(data)
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(len={len(self)})"
-
-    def __len__(self) -> int:
-        return len(self.__objects)
-
-    def __bool__(self) -> bool:
-        return bool(self.__objects)
-
-    def get(self) -> any:
-        return self.__objects.pop(0)
-
-    def add(self, data: any) -> None:
-        self.__objects.append(data)
-
-    def add_all(self, data: tuple) -> None:
-        for object_ in data:
-            self.add(object_)
