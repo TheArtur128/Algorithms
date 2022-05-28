@@ -1,9 +1,11 @@
 from math import inf as infinity
+from typing import Iterable
 
 from structures.graphs import GraphNode, GraphNodePath
 from structures.collections_ import Queue
 
-def binary_search_index_of(number: int, sorted_array: list[int]) -> int:
+
+def binary_search_index_of(number: int, sorted_array: Iterable[int,]) -> int:
     '''O(log n). Analogs: list.index(number)'''
 
     min, max = 0, len(sorted_array) - 1
@@ -26,7 +28,7 @@ def binary_search_index_of(number: int, sorted_array: list[int]) -> int:
     raise ValueError (f"{number} is not in list")
 
 
-def is_item_in(array: list, item: any) -> bool:
+def is_item_in(array: Iterable, item: any) -> bool:
     '''O(n). Analogs: item in list'''
 
     boxes = []
@@ -39,7 +41,7 @@ def is_item_in(array: list, item: any) -> bool:
     return any(map(lambda box: is_item_in(box, item), boxes))
 
 
-def get_biggest_from(numbers: list[int]) -> int:
+def get_biggest_from(numbers: Iterable[int,]) -> int:
     '''O(n). Analogs: max(numbers)'''
 
     bigest = -infinity
