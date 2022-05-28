@@ -1,5 +1,7 @@
 from math import inf as infinity
 
+from structures.graphs import GraphNode, GraphNodePath
+from structures.collections_ import Queue
 
 def binary_search_index_of(number: int, sorted_array: list[int]) -> int:
     '''O(log n). Analogs: list.index(number)'''
@@ -46,3 +48,20 @@ def get_biggest_from(numbers: list[int]) -> int:
             bigest = number
 
     return bigest
+
+
+def breadth_first_search(starting_node_graph: GraphNode, final_node_graph: GraphNode) -> GraphNodePath | None:
+    paths_to_nodes = Queue(map(lambda node: GraphNodePath(starting_node_graph, [node.data]), starting_node_graph.nodes))
+
+    while paths_to_nodes:
+        active_path = paths_to_nodes.get()
+
+        if active_path.final_node is final_node_graph:
+            return active_path
+        else:
+            paths_to_nodes.add_from(
+                map(
+                    lambda next_node: GraphNodePath(starting_node_graph, [*active_path.keys_to_final_node, next_node.data]),
+                    active_path.final_node.nodes
+                )
+            )
