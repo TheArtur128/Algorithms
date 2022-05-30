@@ -1,6 +1,13 @@
-    '''O(n). Analogs: numbers.sort()'''
 from typing import Iterable
+
+
 def qsort(numbers: Iterable[int]) -> list:
+    """
+    Recursive function returning a sorted list. Sorts the collection into two
+    parts: greater than and less than the central number and recursively applies
+    to these parts until the array is completely sorted. O(n) speed. Analogs:
+    numbers.sort().
+    """
 
     if len(numbers) > 2:
         reliance = numbers[len(numbers)//2 - 1]
@@ -25,8 +32,12 @@ def qsort(numbers: Iterable[int]) -> list:
         return numbers
 
 
-    """O(n^2). Analogs: numbers.sort()"""
 def bubble_sort(numbers: Iterable) -> None:
+    """
+    Sorts the collection by continuously iterating over it and replacing two
+    adjacent numbers if the left is greater than the right. O(n^2) speed. Analogs:
+    numbers.sort().
+    """
 
     is_sorted = False
 

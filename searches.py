@@ -6,7 +6,14 @@ from structures.collections_ import Queue
 
 
 def binary_search_index_of(number: int, sorted_array: Iterable[int,]) -> int:
-    '''O(log n). Analogs: list.index(number)'''
+    """
+    Binary search for the index of a number in a sorted collection. At each iteration,
+    determines the approximate habitat zone of the number in the list by comparing
+    the number with the average number in the collection and choosing a larger or
+    smaller zone depending on the comparison answer, until the search zone narrows
+    down to one number. Throws an error if the number is not in the collection.
+    O(log n) speed. Analogs: list.index(number).
+    """
 
     min, max = 0, len(sorted_array) - 1
 
@@ -29,7 +36,10 @@ def binary_search_index_of(number: int, sorted_array: Iterable[int,]) -> int:
 
 
 def is_item_in(array: Iterable, item: any) -> bool:
-    '''O(n). Analogs: item in list'''
+    """
+    Looking for an answer to the question about the presence of an element in
+    the collection and its subcollections. O(n) speed. Analogs: item in list.
+    """
 
     boxes = []
     for object_ in array:
@@ -42,7 +52,7 @@ def is_item_in(array: Iterable, item: any) -> bool:
 
 
 def get_biggest_from(numbers: Iterable[int,]) -> int:
-    '''O(n). Analogs: max(numbers)'''
+    """Finder of the biggest number in the collection. O(n) speed. Analogs: max(numbers)."""
 
     bigest = -infinity
     for number in numbers:
@@ -53,6 +63,11 @@ def get_biggest_from(numbers: Iterable[int,]) -> int:
 
 
 def breadth_first_search(starting_node_graph: GraphNode, final_node_graph: GraphNode) -> GraphNodePath | None:
+    """
+    Searches for a path from one graph node to another, spending the minimum number of steps.
+    Returns None if no path exists, otherwise abstract graph of the path. O(n) speed.
+    """
+
     paths_to_nodes = Queue(map(lambda node: GraphNodePath(starting_node_graph, [node.data]), starting_node_graph.nodes))
 
     while paths_to_nodes:
