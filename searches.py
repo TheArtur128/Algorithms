@@ -63,7 +63,7 @@ def breadth_first_search(starting_node_graph: GraphNode, final_node_graph: Graph
         else:
             paths_to_nodes.add_from(
                 map(
-                    lambda next_node: GraphNodePath(starting_node_graph, [*active_path.keys_to_final_node, next_node.data]),
+                    lambda next_node: GraphNodePath(starting_node_graph, [*active_path.intermediate_keys, next_node.data]),
                     active_path.final_node.nodes
                 )
             )
