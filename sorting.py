@@ -1,5 +1,6 @@
-def qsort(numbers: list[int]) -> list:
     '''O(n). Analogs: numbers.sort()'''
+from typing import Iterable
+def qsort(numbers: Iterable[int]) -> list:
 
     if len(numbers) > 2:
         reliance = numbers[len(numbers)//2 - 1]
@@ -24,8 +25,8 @@ def qsort(numbers: list[int]) -> list:
         return numbers
 
 
-def bubble_sort(numbers: list) -> None:
     """O(n^2). Analogs: numbers.sort()"""
+def bubble_sort(numbers: Iterable) -> None:
 
     is_sorted = False
 
