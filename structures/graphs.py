@@ -86,6 +86,30 @@ class GraphNode(AbstractGraphNode):
         self.__nodes.remove(graph_node)
 
 
+class HashGraphNode(AbstractGraphNode):
+    """
+    When saving a node, it also saves additional information associated with
+    this saved node.
+    """
+
+    def __init__(self, data: any, node_data: dict[AbstractGraphNode, any] = dict()) -> None:
+        super().__init__(data)
+        self.__nodes = dict(node_data)
+
+    @property
+    def nodes(self) -> frozenset:
+        return frozenset(self.__nodes.keys())
+
+    def get_intermediate_data_from(self, graph_node: AbstractGraphNode) -> any:
+        return self.__nodes[graph_node]
+
+    def add_node(self, graph_node: AbstractGraphNode, intermediate_data: any) -> None:
+        self.__nodes[graph_node] = intermediate_data
+
+    def cut_node(self, graph_node: AbstractGraphNode) -> None:
+        self.__nodes.pop(graph_node)
+
+
 class GraphNodePath:
     """Abstract graph without branch."""
 
