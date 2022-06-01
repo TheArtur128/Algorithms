@@ -1,4 +1,5 @@
 from typing import Iterable, Callable
+from abc import ABC, abstractmethod
 
 from errors import NoGraphNodeReference, NoNextGraphNode
 
@@ -32,31 +33,56 @@ class _StaticallyTypedSet(set):
             self.check_object_for_types(object_)
 
 
-class GraphNode:
-    """Part of an imaginary graph. Stores any data and links to other parts of the graph."""
+class AbstractGraphNode(ABC):
+    """
+    Abstract class of a part of an imaginary graph. Stores any data and links to
+    other parts of the graph and they can be obtained by referring to the node
+    with the key as their data. Preserves neighboring graph nodes and leaves
+    persistence implementation to descendants.
+    """
 
-    def __init__(self, data: any, next_nodes: Iterable = tuple()) -> None:
+    def __init__(self, data: any) -> None:
         self.data = data
-        self.__nodes = _StaticallyTypedSet((self.__class__,), next_nodes)
 
     def __repr__(self) -> str:
-        return f"{self.data}.{self.__nodes}"
+        return f"{self.data}.{self.nodes}"
 
-    def __getitem__(self, data_of_next_node: any):
-        for node in self.__nodes:
-            if node.data == data_of_next_node:
+    def __getitem__(self, node_data: any):
+        for node in self.nodes:
+            if node.data == node_data:
                 return node
 
-        raise NoGraphNodeReference(node=self, data=data_of_next_node)
+        raise NoGraphNodeReference(node=self, data=node_data)
 
     @property
-    def nodes(self) -> set:
-        return set(self.__nodes)
+    @abstractmethod
+    def nodes(self) -> frozenset:
+        pass
 
+    @abstractmethod
     def add_node(self, graph_node) -> None:
+        pass
+
+    @abstractmethod
+    def cut_node(self, graph_node) -> None:
+        pass
+
+
+class GraphNode(AbstractGraphNode):
+    """Class of a typical node of a typical graph."""
+
+    def __init__(self, data: any, next_nodes: Iterable[AbstractGraphNode,] = tuple()) -> None:
+        super().__init__(data)
+        self.__nodes = _StaticallyTypedSet((AbstractGraphNode,), next_nodes)
+
+    @property
+    def nodes(self) -> frozenset:
+        return frozenset(self.__nodes)
+
+    def add_node(self, graph_node: AbstractGraphNode) -> None:
         self.__nodes.add(graph_node)
 
-    def cut_node(self, graph_node) -> None:
+    def cut_node(self, graph_node: AbstractGraphNode) -> None:
         self.__nodes.remove(graph_node)
 
 
