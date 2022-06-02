@@ -1,5 +1,5 @@
 from math import inf as infinity
-from typing import Iterable
+from typing import Iterable, Callable
 
 from structures.graphs import AbstractGraphNode, GraphNode, HashGraphNode, GraphPath
 from structures.collections_ import Queue
@@ -84,3 +84,45 @@ def breadth_first_search(starting_node_graph: AbstractGraphNode, final_node_grap
             )
 
 
+def get_optinal_paths_to_graph_nodes(
+    starting_graph_node: GraphNode,
+    path_comparison_function: Callable | None = None,
+) -> dict[HashGraphNode, GraphPath]:
+    """
+    Finds and returns optimal paths for all nodes of the abstract graph. Determines
+    the optimal path by input function path_comparison_function, which has two
+    input arguments leading to the same graph node. By default,
+    path_comparison_function operates on paths consisting of HashGraphNodes that
+    store numbers as intermediate data and when comparing two paths, returns the
+    path that had a smaller sum stored in the intermediate values of its nodes,
+    than the other path. Uses Dijkstra's algorithm as a finder. O(n) speed.
+    """
+
+    if not path_comparison_function:
+        path_comparison_function = (
+            lambda first_path, second_path:
+                first_path if sum(first_path.get_all_intermediate_data()) < sum(second_path.get_all_intermediate_data()) else second_path
+            )
+
+    shortest_path_to_node = dict()
+    paths_to_check = Queue([GraphPath(starting_graph_node, tuple())])
+
+    while paths_to_check:
+        active_path = paths_to_check.get()
+
+        if not active_path.final_node in shortest_path_to_node.keys():
+            shortest_path_to_node[active_path.final_node] = active_path
+        else:
+            shortest_path_to_node[active_path.final_node] = path_comparison_function(
+                shortest_path_to_node[active_path.final_node],
+                active_path
+            )
+
+        paths_to_check.add_from(
+            map(
+                lambda next_node: GraphPath(starting_graph_node, [*active_path.intermediate_keys, next_node.data]),
+                active_path.final_node.nodes
+            )
+        )
+
+    return shortest_path_to_node
