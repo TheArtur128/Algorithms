@@ -4,35 +4,6 @@ from abc import ABC, abstractmethod
 from errors import NoGraphNodeReference, NoNextGraphNode
 
 
-class _StaticallyTypedSet(set):
-    """
-    Set that only stores certain types of data. Throws exceptions when attempting
-    to add unsupported types.
-    """
-
-    def __init__(self, supported_types: Iterable[type,], items: Iterable = tuple(), *args, **kwargs):
-        self.supported_types = supported_types
-        self.check_objects_for_types(items)
-
-        super().__init__(items, *args, **kwargs)
-
-    def __repr__(self) -> str:
-        return f"staticset{set(self) if self else '()'}"
-
-    def add(self, object_: any, *args, **kwargs) -> None:
-        self.check_object_for_types(object_)
-        return super().add(object_, *args, **kwargs)
-
-    def check_object_for_types(self, object_: any) -> None:
-        if not any(map(lambda type_: isinstance(object_, type_), self.supported_types)):
-            beautiful_types = ', '.join(map(lambda type_: type_.__name__, self.supported_types))
-            raise TypeError(f"This set can only store objects of type {beautiful_types}, not {object_.__class__.__name__}")
-
-    def check_objects_for_types(self, objects: Iterable) -> None:
-        for object_ in objects:
-            self.check_object_for_types(object_)
-
-
 class AbstractGraphNode(ABC):
     """
     Abstract class of a part of an imaginary graph. Stores any data and links to
@@ -73,7 +44,7 @@ class GraphNode(AbstractGraphNode):
 
     def __init__(self, data: any, next_nodes: Iterable[AbstractGraphNode,] = tuple()) -> None:
         super().__init__(data)
-        self.__nodes = _StaticallyTypedSet((AbstractGraphNode,), next_nodes)
+        self.__nodes = set(next_nodes)
 
     @property
     def nodes(self) -> frozenset:
