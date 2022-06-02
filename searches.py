@@ -1,7 +1,7 @@
 from math import inf as infinity
 from typing import Iterable
 
-from structures.graphs import GraphNode, GraphNodePath
+from structures.graphs import AbstractGraphNode, GraphNode, HashGraphNode, GraphPath
 from structures.collections_ import Queue
 
 
@@ -62,13 +62,13 @@ def get_biggest_from(numbers: Iterable[int,]) -> int:
     return bigest
 
 
-def breadth_first_search(starting_node_graph: GraphNode, final_node_graph: GraphNode) -> GraphNodePath | None:
+def breadth_first_search(starting_node_graph: AbstractGraphNode, final_node_graph: AbstractGraphNode) -> GraphPath | None:
     """
     Searches for a path from one graph node to another, spending the minimum number of steps.
     Returns None if no path exists, otherwise abstract graph of the path. O(n) speed.
     """
 
-    paths_to_nodes = Queue(map(lambda node: GraphNodePath(starting_node_graph, [node.data]), starting_node_graph.nodes))
+    paths_to_nodes = Queue(map(lambda node: GraphPath(starting_node_graph, [node.data]), starting_node_graph.nodes))
 
     while paths_to_nodes:
         active_path = paths_to_nodes.get()
@@ -78,7 +78,9 @@ def breadth_first_search(starting_node_graph: GraphNode, final_node_graph: Graph
         else:
             paths_to_nodes.add_from(
                 map(
-                    lambda next_node: GraphNodePath(starting_node_graph, [*active_path.intermediate_keys, next_node.data]),
+                    lambda next_node: GraphPath(starting_node_graph, [*active_path.intermediate_keys, next_node.data]),
                     active_path.final_node.nodes
                 )
             )
+
+

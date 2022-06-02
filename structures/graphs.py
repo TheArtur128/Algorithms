@@ -81,20 +81,20 @@ class HashGraphNode(AbstractGraphNode):
         self.__nodes.pop(graph_node)
 
 
-class GraphNodePath:
+class GraphPath:
     """Abstract graph without branch."""
 
     def __init__(self, *args, **kwargs) -> None:
         self.update(*args, **kwargs)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({', '.join(map(lambda key: str(key), self.intermediate_keys))})"
+        return f"{self.__class__.__name__}(intermediate_keys={self.intermediate_keys}, starting_node={self.starting_node})"
 
-    def update(self, first_node: GraphNode, intermediate_keys: Iterable) -> None:
+    def update(self, first_node: AbstractGraphNode, intermediate_keys: Iterable) -> None:
         self.__intermediate_keys = tuple(intermediate_keys)
         self.update_nodes(first_node)
 
-    def update_nodes(self, starting_node: GraphNode) -> None:
+    def update_nodes(self, starting_node: AbstractGraphNode) -> None:
         self.__nodes = [starting_node]
         active_node = starting_node
 
@@ -107,9 +107,20 @@ class GraphNodePath:
         self.__starting_node = starting_node
         self.__final_node = self.nodes[-1]
 
-    def _check_serial_node(self, node: GraphNode, next_intermediate_key: any, node_index: int) -> None:
+    def _check_serial_node(self, node: AbstractGraphNode, next_intermediate_key: any, node_index: int) -> None:
         if not any(map(lambda node: node.data == next_intermediate_key, node.nodes)):
             raise NoNextGraphNode(node=self, node_index=node_index, data=next_intermediate_key)
+
+    def get_all_intermediate_data(self) -> list:
+        all_intermediate_data = list()
+
+        for node_index, node in enumerate(self.nodes[:-1]):
+            if isinstance(node, HashGraphNode):
+                all_intermediate_data.append(
+                    node.get_intermediate_data_from(self.nodes[node_index + 1])
+                )
+
+        return all_intermediate_data
 
     @property
     def intermediate_keys(self) -> tuple:
@@ -120,9 +131,9 @@ class GraphNodePath:
         return tuple(self.__nodes)
 
     @property
-    def starting_node(self) -> GraphNode:
+    def starting_node(self) -> AbstractGraphNode:
         return self.__starting_node
 
     @property
-    def final_node(self) -> GraphNode:
+    def final_node(self) -> AbstractGraphNode:
         return self.__final_node
