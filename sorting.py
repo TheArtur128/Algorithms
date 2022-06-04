@@ -1,36 +1,46 @@
-from typing import Iterable
+from typing import Iterable, Callable
 
 
-def qsort(numbers: Iterable[int]) -> list:
+def qsort(
+    items: list,
+    determinant_function: Callable = lambda first, second: "middle" if first == second else first > second
+) -> list:
     """
-    Recursive function returning a sorted list. Sorts the collection into two
-    parts: greater than and less than the central number and recursively applies
-    to these parts until the array is completely sorted. O(n) speed. Analogs:
-    numbers.sort().
+    Recursively divides the list into parts and chooses which part to
+    attribute the element of this list to, according to input function
+    determinant_function, which has two arguments, into which these parts fall
+    and are compared. Input function determinant_function must return "middle"
+    if the element is to be determined in the middle of the new sorted list,
+    "left" or False if at the beginning and "rigth" or True if at the end. items
+    is the list whose sorted version is to be returned. By default, sorts
+    a list of numbers from smallest to largest. O(n) speed.
     """
 
-    if len(numbers) > 2:
-        reliance = numbers[len(numbers)//2 - 1]
-        lesser, larger, analogues = [], [], []
+    match len(items):
+        case 2 if not determinant_function(*items):
+            items.reverse()
+        case _ as length if length < 2:
+            return items
 
-        for number in numbers:
-            if number == reliance:
-                analogues.append(number)
+    reliance = items[len(items)//2 - 1]
+    left_part, middle_part, right_part  = list(), list(), list()
 
-            elif number > reliance:
-                larger.append(number)
+    for item in items:
+        match determinant_function(item, reliance):
+            case "middle":
+                middle_part.append(item)
+            case "right" | True:
+                right_part.append(item)
+            case "left" | False:
+                left_part.append(item)
+            case _ as result:
+                raise ValueError(f'Determinant function must return "middle", "right", "left" or boolean value, not {result}')
 
-            elif number < reliance:
-                lesser.append(number)
-
-        return qsort(lesser) + analogues + qsort(larger)
-    else:
-        if len(numbers) == 2:
-            if numbers[0] > numbers[1]:
-                numbers.reverse()
-
-        return numbers
-
+    return (
+        qsort(left_part, determinant_function) +
+        middle_part +
+        qsort(right_part, determinant_function)
+    )
 
 def bubble_sort(numbers: Iterable) -> None:
     """
