@@ -108,21 +108,54 @@ def get_optinal_paths_to_graph_nodes(
     paths_to_check = Queue([GraphPath(starting_graph_node, tuple())])
 
     while paths_to_check:
+        update_branch = True
         active_path = paths_to_check.get()
 
-        if not active_path.final_node in shortest_path_to_node.keys():
-            shortest_path_to_node[active_path.final_node] = active_path
-        else:
-            shortest_path_to_node[active_path.final_node] = path_comparison_function(
+        if active_path.final_node in shortest_path_to_node.keys():
+            chosen_path = path_comparison_function(
                 shortest_path_to_node[active_path.final_node],
                 active_path
             )
 
-        paths_to_check.add_from(
-            map(
-                lambda next_node: GraphPath(starting_graph_node, [*active_path.intermediate_keys, next_node.data]),
-                active_path.final_node.nodes
+            update_branch = chosen_path is active_path
+            shortest_path_to_node[active_path.final_node] = chosen_path
+        else:
+            shortest_path_to_node[active_path.final_node] = active_path
+
+        if update_branch:
+            paths_to_check.add_from(
+                map(
+                    lambda next_node: GraphPath(starting_graph_node, [*active_path.intermediate_keys, next_node.data]),
+                    active_path.final_node.nodes
+                )
             )
-        )
 
     return shortest_path_to_node
+
+
+def choose_items_from(
+    items: Iterable,
+    sorted_function: Callable,
+    is_choice_correct: Callable
+) -> list:
+    """
+    Returns a filtered list of the input iterable objects and uses the greedy
+    algorithm as a filterer. Sorts the input collection using the input function
+    sorted_function returning the sorted collection, and selects the appropriate
+    objects starting from the first one, looking at the binary return result of
+    the input is_choice_correct function, which takes as input a tuple of already
+    selected objects and a new object. O(n*c + s) speed, where "n" is the number
+    of elements, "c" is the speed of the input function is_choice_correct and "s"
+    is the speed of the also input function sorted_function.
+    """
+
+    items_to_choose = Queue(sorted_function(items))
+    chosen_items = list()
+
+    while items_to_choose:
+        select_item = items_to_choose.get()
+
+        if is_choice_correct((*chosen_items, select_item)):
+            chosen_items.append(select_item)
+
+    return chosen_items
