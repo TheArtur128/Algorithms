@@ -11,6 +11,9 @@ class Queue:
     def __len__(self) -> int:
         return len(self.__objects)
 
+    def __iter__(self) -> iter:
+        return iter(self.__objects)
+
     def __bool__(self) -> bool:
         return bool(self.__objects)
 
