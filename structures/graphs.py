@@ -16,7 +16,11 @@ class AbstractGraphNode(ABC):
         self.data = data
 
     def __repr__(self) -> str:
-        return f"{self.data}.{self.nodes}"
+        return "{class_name}(main_data={main_data}, nodes_data={nodes_data})".format(
+            class_name=self.__class__.__name__,
+            main_data=self.data,
+            nodes_data=tuple(map(lambda node: node.data, self.nodes))
+        )
 
     def __getitem__(self, node_data: any):
         for node in self.nodes:
