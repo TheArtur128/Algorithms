@@ -1,8 +1,9 @@
-from math import inf as infinity
+from math import inf as infinity, ceil
 from typing import Iterable, Callable
+from collections import OrderedDict
 
 from structures.graphs import AbstractGraphNode, GraphNode, HashGraphNode, GraphPath
-from structures.collections_ import Queue
+from structures.collections_ import Queue, ItemDescription
 
 
 def binary_search_index_of(number: int, sorted_array: Iterable[int,]) -> int:
@@ -159,3 +160,77 @@ def choose_items_from(
             chosen_items.append(select_item)
 
     return chosen_items
+
+
+def choose_maximum_items_from(
+    items: set,
+    cost_ceiling: int,
+    get_cost_by_item: Callable,
+    get_importance_index_by_item: Callable
+) -> ItemDescription:
+    """
+    Selects the most valuable sequence of input items argument, not exceeding the
+    maximum cost from the input cost_ceiling argument, using dynamic programming.
+
+    Determines each item's cost and importance index using the input hash
+    functions get_cost_by_item and get_importance_index_by_item.
+
+    O(n*(c + i + l/m)) speed, where "c" is get_cost_by_item speed, "i" is
+    get_importance_index_by_item speed, "l" is cost_ceiling and "m" is minimum
+    cost given by get_cost_by_item.
+    """
+
+    base_item_decriptions = [
+        ItemDescription(
+            (item,),
+            get_cost_by_item(item),
+            get_importance_index_by_item(item)
+        )
+        for item in items
+    ]
+
+    minimal_cost = min(map(lambda decription: decription.cost, base_item_decriptions))
+    available_costs = [i * minimal_cost for i in range(1, ceil(cost_ceiling / minimal_cost) + 1)]
+
+    table = OrderedDict()
+
+    for base_decription_index, base_decription in enumerate(base_item_decriptions):
+        table[base_decription] = list()
+
+        for available_cost_index, available_cost in enumerate(available_costs):
+            missing_cost = available_cost - (base_decription.cost if base_decription.cost != infinity else 0)
+
+            if missing_cost >= 0:
+                best_missing_decription = ItemDescription.choise_optimal_description(
+                    sum(
+                        map(
+                            lambda table_item: table_item[1],
+                            filter(
+                                lambda table_item: not table_item[0] is base_decription,
+                                table.items()
+                            )
+                        ),
+                        list()
+                    ),
+                    missing_cost,
+                    ItemDescription.get_worst_example()
+                )
+
+                completed_decription = base_decription + best_missing_decription
+            else:
+                 completed_decription = ItemDescription.get_worst_example()
+
+            previous = (
+                tuple(table.items())[base_decription_index - 1][1][available_cost_index]
+                if base_decription_index - 1 >= 0 else ItemDescription.get_worst_example()
+            )
+
+            table[base_decription].append(
+                ItemDescription.choise_optimal_description(
+                    (completed_decription, previous),
+                    available_cost,
+                    ItemDescription.get_worst_example()
+                )
+            )
+
+    return tuple(table.items())[-1][1][-1]
