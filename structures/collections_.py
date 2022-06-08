@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, NamedTuple
 from dataclasses import dataclass
 from functools import reduce
 from math import inf
@@ -81,3 +81,8 @@ class ItemDescription():
             ),
             clean_descriptions
         )
+
+
+class DistanceToItem(NamedTuple):
+    item: any
+    distance: float | int

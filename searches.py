@@ -1,9 +1,10 @@
-from math import inf as infinity, ceil
+from math import inf as infinity, ceil, sqrt
 from typing import Iterable, Callable
 from collections import OrderedDict
 
 from structures.graphs import AbstractGraphNode, GraphNode, HashGraphNode, GraphPath
-from structures.collections_ import Queue, ItemDescription
+from structures.collections_ import Queue, ItemDescription, DistanceToItem
+from sorting import qsort
 
 
 def binary_search_index_of(number: int, sorted_array: Iterable[int,]) -> int:
@@ -234,3 +235,34 @@ def choose_maximum_items_from(
             )
 
     return tuple(table.items())[-1][1][-1]
+
+
+def get_items_by_coordinates_from(
+    items: Iterable,
+    get_coordinates_by_item: Callable,
+    maximum_number_of_items: int = infinity,
+) -> list[DistanceToItem,]:
+    """
+    Sets the coordinates for the input items by the input get_coordinates_by_item
+    function and returns the items with their distance away from zero.
+    max_number_of_items is an argument that sets the number of items returned.
+
+    O(n*g*q) speed, where g is speed of the input function get_coordinates_by_item,
+    q is the speed of the qsort function (O(n) speed).
+
+    Can be used as K-Nearest Neighbor algorithm (Used only for it).
+    """
+
+    items_by_distance = qsort(
+        tuple(map(
+            lambda item:
+                DistanceToItem(
+                    item,
+                    sqrt(sum(map(lambda coordinate: coordinate**2, get_coordinates_by_item(item))))
+                ),
+            items
+        )),
+        lambda first, second: "middle" if first.distance == second.distance else first.distance > second.distance
+    )
+
+    return items_by_distance[:maximum_number_of_items] if len(items_by_distance) > maximum_number_of_items else items_by_distance
