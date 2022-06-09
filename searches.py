@@ -237,32 +237,55 @@ def choose_maximum_items_from(
     return tuple(table.items())[-1][1][-1]
 
 
-def get_items_by_coordinates_from(
-    items: Iterable,
+def get_nearest_items_for(
+    central_item: any,
+    neighboring_items: Iterable,
     get_coordinates_by_item: Callable,
-    maximum_number_of_items: int = infinity,
+    maximum_distance_to_item: float = infinity,
 ) -> list[DistanceToItem,]:
     """
     Sets the coordinates for the input items by the input get_coordinates_by_item
-    function and returns the items with their distance away from zero.
-    max_number_of_items is an argument that sets the number of items returned.
+    function and returns the items with their distance away from coordinates set
+    for the input central_item argument. max_number_of_items is an argument that
+    sets the number of items returned.
 
-    O(n*g*q) speed, where g is speed of the input function get_coordinates_by_item,
+    O(n*g + q) speed, where g is speed of the input function get_coordinates_by_item,
     q is the speed of the qsort function (O(n) speed).
 
     Can be used as K-Nearest Neighbor algorithm (Used only for it).
     """
 
-    items_by_distance = qsort(
-        tuple(map(
-            lambda item:
-                DistanceToItem(
-                    item,
-                    sqrt(sum(map(lambda coordinate: coordinate**2, get_coordinates_by_item(item))))
+    central_item_coordintates = get_coordinates_by_item(central_item)
+
+    return qsort(
+        list(filter(
+            lambda item: item.distance <= maximum_distance_to_item,
+            map(
+                lambda item: (
+                    DistanceToItem(
+                        item,
+                        sqrt(sum(map(
+                            lambda coordinate: coordinate**2,
+                            _get_vector_by(central_item_coordintates, get_coordinates_by_item(item))
+                        )))
+                    )
                 ),
-            items
+                items
+            )
         )),
         lambda first, second: "middle" if first.distance == second.distance else first.distance > second.distance
     )
 
-    return items_by_distance[:maximum_number_of_items] if len(items_by_distance) > maximum_number_of_items else items_by_distance
+
+def _get_vector_by(start_point: Iterable[float | int,], end_point: Iterable[float | int,]) -> list[float | int,]:
+    start_point, end_point = map(list, (start_point, end_point))
+
+    if len(start_point) < len(end_point):
+        start_point.extend([0]*(len(end_point) - len(start_point)))
+    else:
+        end_point.extend([0]*(len(start_point) - len(end_point)))
+
+    return [
+        coordinate_of_end_point - coordinate_of_start_point
+        for coordinate_of_start_point, coordinate_of_end_point in zip(start_point, end_point)
+    ]
