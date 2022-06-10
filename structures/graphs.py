@@ -85,6 +85,82 @@ class HashGraphNode(AbstractGraphNode):
         self.__nodes.pop(graph_node)
 
 
+class AbstractBinaryGraphNode(AbstractGraphNode):
+    """
+    Stores only two nodes: right and left. Determines the position of the node
+    with the determinant_function, which compares the data of the next node and
+    the current node and returns "left" or "rigth" for the corresponding location.
+    When trying to add a node to an already existing place, it forces you to add
+    this node to the node lying in the occupied place. Leaves the implementation
+    of getting the function determinant_function.
+    """
+
+    def __init__(self, data: any) -> None:
+        super().__init__(data)
+        self.__right_node = self.__left_node = None
+
+    @property
+    def right_node(self) -> AbstractGraphNode:
+        return self.__right_node
+
+    @property
+    def left_node(self) -> AbstractGraphNode:
+        return self.__left_node
+
+    @property
+    @abstractmethod
+    def determinant_function(self) -> Callable[[any, any], str]:
+        pass
+
+    @property
+    def nodes(self) -> frozenset[AbstractGraphNode]:
+        return frozenset(filter(lambda node: not node is None, (self.left_node, self.right_node)))
+
+    def add_node(self, graph_node: AbstractGraphNode) -> None:
+        match self.determinant_function(graph_node.data, self.data):
+            case "left":
+                if self.__left_node is None:
+                    self.__left_node = graph_node
+                else:
+                    self.__left_node.add_node(graph_node)
+            case "right":
+                if self.__right_node is None:
+                    self.__right_node = graph_node
+                else:
+                    self.__right_node.add_node(graph_node)
+            case _ as result:
+                raise ValueError(f'determinant function {determinant_function} returned {result}, not "right" or "left"')
+
+
+    def cut_node(self, graph_node: AbstractGraphNode) -> None:
+        match graph_node:
+            case self.left_node:
+                self.left_node = None
+            case self.right_node:
+                self.right_node = None
+            case _:
+                raise KeyError(graph_node)
+
+
+class UserBinaryGraphNode(AbstractBinaryGraphNode):
+    """Class taking determinant_function from the client."""
+
+    def __init__(self, data: any, determinant_function: Callable) -> None:
+        super().__init__(data)
+        self.determinant_function = determinant_function
+
+    @property
+    def determinant_function(self) -> Callable:
+        return self.__determinant_function
+
+    @determinant_function.setter
+    def determinant_function(self, new_determinant_function: Callable) -> None:
+        self.__determinant_function = new_determinant_function
+
+
+class SystematizedBinaryGraphNode(AbstractBinaryGraphNode):
+    """determinant_function is defined inside the class."""
+
 class GraphPath:
     """Abstract graph without branch."""
 
