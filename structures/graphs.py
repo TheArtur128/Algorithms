@@ -157,6 +157,18 @@ class UserBinaryGraphNode(AbstractBinaryGraphNode):
 class SystematizedBinaryGraphNode(AbstractBinaryGraphNode):
     """determinant_function is defined inside the class."""
 
+
+class NumericBinaryGraphNode(SystematizedBinaryGraphNode):
+    """
+    Binary node that determines the place of data by numerical comparison: less -
+    left, more - right.
+    """
+
+    @property
+    def determinant_function(self) -> Callable:
+        return lambda new_data, old_data: 'left' if new_data < old_data else 'right'
+
+
 class GraphPath:
     """Abstract graph without branch."""
 
