@@ -147,15 +147,11 @@ class UserBinaryGraphNode(AbstractBinaryGraphNode):
 
     def __init__(self, data: any, determinant_function: Callable) -> None:
         super().__init__(data)
-        self.determinant_function = determinant_function
+        self.__determinant_function = determinant_function
 
     @property
     def determinant_function(self) -> Callable:
         return self.__determinant_function
-
-    @determinant_function.setter
-    def determinant_function(self, new_determinant_function: Callable) -> None:
-        self.__determinant_function = new_determinant_function
 
 
 class SystematizedBinaryGraphNode(AbstractBinaryGraphNode):
