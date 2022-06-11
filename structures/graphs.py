@@ -134,10 +134,10 @@ class AbstractBinaryGraphNode(AbstractGraphNode):
 
     def cut_node(self, graph_node: AbstractGraphNode) -> None:
         match graph_node:
-            case self.left_node:
-                self.left_node = None
-            case self.right_node:
-                self.right_node = None
+            case self.__left_node:
+                self.__left_node = None
+            case self.__right_node:
+                self.__right_node = None
             case _:
                 raise KeyError(graph_node)
 
