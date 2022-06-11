@@ -3,7 +3,8 @@ from typing import Iterable, Callable
 from collections import OrderedDict
 
 from structures.graphs import AbstractGraphNode, GraphNode, HashGraphNode, GraphPath
-from structures.collections_ import Queue, ItemDescription, DistanceToItem
+from structures.data_types import ItemDescription, DistanceToItem
+from structures.collections_ import Queue
 from sorting import qsort
 
 
